@@ -118,54 +118,56 @@ int main(int argc, char* argv[])
 
 
 // P function
-if(strcmp(argv[1], "P")  == 0)
+if(strcmp(argv[1],"P")==0)
 {
-    printf("Entered print function \n");
-    char name[8]; // max size of the name can be 8 characters
-    for (i =0; i <512; i=i+16)
-    {
-        if (dir[i] == 0) break;
-        for (j == 0; j < 8; j++)
-        {
-            if (dir[i+j] == 0)
+    char fileName[8];
+      for (i=0; i<512; i=i+16) {
+        if (dir[i]==0) break;
+        for (j=0; j<8; j++) {
+            if (dir[i+j]==0) fileName[j] ='\0'; else fileName[j]=dir[i+j];
+        }
+          if(strcmp(argv[2], fileName)==0) {
+                if(dir[i+8] != 't')
             {
-                name[j] = "\0";
+                if(dir[i+8] !='x')
+                {
+                 printf("File not found");
+                }
+                else { printf("File is not printable");}
             }
             else
             {
-                name[j] = dir[i+j];
-            }
-        }
-        ///
-        if (strcmp(argv[2], name) == 0) // if we have a name match
-        {
-            printf("found a matching file name \n");
-            if (dir[i+8] != 't') // we can't read anything other than a text file
-            {
-                if (dir[i+8] != 'x')
-                {
-                    printf("file extension not found \n");
+                //PRINT FILE
+                char buffer[12288];
+                fseek(floppy,512*dir[i+9],SEEK_SET);
+                for(i=0; i<256; i++) {
+                   buffer[i]=fgetc(floppy);
                 }
-                else
+                for(i=0; i<256; i=i+16) 
                 {
-                    printf("file cannot be printed \n");
+                    if(buffer[i] == 0) break;
+                    for (j=0; j < 16; j++)
+                    if (buffer[i+j] == 0)
+                    {
+                        buffer[i+j] = "\0";
+                    }
+                    else
+                    {
+                        printf("%c", buffer[i+j]);
+                    }
+                    
                 }
 
+
             }
-            else // elsewise the file is a text file that can be read
-            {
-                printf("I have found the file, its here: \n");
-                for (auto k = 0; k < 7; k++)
-                {
-                    printf("%c", name[k] );
-                }
+
             }
-        }
+            
     }
+    printf("\n end of P function \n");
+
+
 }
-
-
-
 
 
 
