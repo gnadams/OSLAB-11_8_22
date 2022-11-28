@@ -180,9 +180,7 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
     char dirSearch[9]; // char temp[9];
     dirSearch[8] = '\0';
     int boolFlag = 0;
-    //printf("Enter the text for your file now: \n");
-    //fgets(contents, 512, stdin);
-    //
+   
     for (i = 0; i < 8;++i)
     {
         fileName[i] = argv[2][i];
@@ -228,8 +226,9 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
                     {
                         if(map[j]==0)
                         {
+                            // should set map location to 16 * i * j
                             startPoint = j;
-                            map[j] = 255; // set n
+                            map[j] = 255; // FF
                             boolFlag = 1;  //trigger bool 
                         }
                     }
@@ -239,9 +238,9 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
                     fseek(floppy,512*dir[i+9],SEEK_SET);
                     for(i=0; i<512*dir[i+10]; i++) 
                     {
-                       fprintf(floppy+i, "%c", contents[i]);
+                       fputc(contents[i],floppy);
                     }
-                    return 0;
+                    
                 }
 
             if (boolFlag)
