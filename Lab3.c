@@ -174,9 +174,10 @@ if(strcmp(argv[1],"P")==0)
 
 if(strcmp(argv[1],"M")==0) // argv[2] is the file name
 {
+    printf("entered the M function \n");
     char contents[512]; // max size is 1 sector 
     int startPoint; // (i+9) points to where the sector will begin at.
-    char fileName[10];
+    char fileName[9];
     char dirSearch[9]; // char temp[9];
     dirSearch[8] = '\0';
     int boolFlag = 0;
@@ -187,15 +188,20 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
     }
 
     int strLength = strlen(argv[2]); 
+    if (strLength <1)
+    {
+        printf("error: must give a file a name \n");
+        return -1;
+    }
     if (strLength < 8)
     {
         for (i = 0; i < 8 - strLength; ++i )
         { 
 
-            fileName[7-i] = '0'; 
+            fileName[7-i] = 0; 
         } 
     }
-    fileName[9] = '\0'; // need null terminator ? maybe? we will be safe
+    //fileName[9] = '\0'; //need null terminator ? maybe? we will be safe
     fileName[8] = 't';
 
     for (i=0; i<512; i=i+16) 
@@ -211,34 +217,41 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
     }
     else 
     {
-        printf("Enter the text for your file now: \n");
-        fgets(contents, 512, stdin);
+        
         for(i=0; i<512; i=i+16) 
         {
             if(dir[i]==0) // look for free space in directory
                 {
-                    printf("we have found a free space! \n");
-                    for(j=0; j<9; j++) 
+                    printf("we have found a free space in the directory! \n");
+                    for(j=0; j<8; j++) 
                     {
-                        dir[i+j] == fileName[j];
+                        dir[i+j] = fileName[j];
                     }
+                    fileName[8] = 't';
                     for(int j=0; j<512; j++)
                     {
                         if(map[j]==0)
                         {
+                            printf("free space on map has been found ! \n");
                             // should set map location to 16 * i * j
                             startPoint = j;
                             map[j] = 255; // FF
                             boolFlag = 1;  //trigger bool 
+                            break;
                         }
                     }
-                    dir[i+9] = startPoint;
-                    dir[i+10] = 1;
-
-                    fseek(floppy,512*dir[i+9],SEEK_SET);
-                    for(i=0; i<512*dir[i+10]; i++) 
+                    if (boolFlag)
                     {
-                       fputc(contents[i],floppy);
+                        printf("Enter the text for your file now: \n");
+                        fgets(contents, sizeof(contents), stdin);
+                        dir[i+9] = startPoint;
+                        dir[i+10] = 1;
+                        dir[i+8] = 't';
+                        fseek(floppy,512*startPoint,SEEK_SET);
+                        for(i=0; i<512; i++) 
+                        {
+                        fputc(contents[i],floppy);
+                        }
                     }
                     
                 }
@@ -252,7 +265,7 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
             
     }
 
-    if (boolFlag = 0)
+    if (boolFlag == 0)
     {
         printf("No disks space :(( \n");
     }
@@ -261,60 +274,14 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
 
 
 
-//load the disk map from sector 256
-	
-	fseek(floppy,512*256,SEEK_SET);
-	for(i=0; i<512; i++)
-		map[i]=fgetc(floppy);
 
-	//load the directory from sector 257
-	
-	fseek(floppy,512*257,SEEK_SET);
-	for (i=0; i<512; i++)
-		dir[i]=fgetc(floppy);
-
-    //print disk map
-	printf("Disk usage map:\n");
-	printf("      0 1 2 3 4 5 6 7 8 9 A B C D E F\n");
-	printf("     --------------------------------\n");
-	for (i=0; i<16; i++) {
-		switch(i) {
-			case 15: printf("0xF_ "); break;
-			case 14: printf("0xE_ "); break;
-			case 13: printf("0xD_ "); break;
-			case 12: printf("0xC_ "); break;
-			case 11: printf("0xB_ "); break;
-			case 10: printf("0xA_ "); break;
-			default: printf("0x%d_ ", i); break;
-		}
-		for (j=0; j<16; j++) {
-			if (map[16*i+j]==-1) printf(" X"); else printf(" .");
-		}
-		printf("\n");
-	}
-
-    // print directory
-	printf("\nDisk directory:\n");
-	printf("Name    Type Start Length\n");
-    for (i=0; i<512; i=i+16) {
-		if (dir[i]==0) break;
-		for (j=0; j<8; j++) {
-			if (dir[i+j]==0) printf(" "); else printf("%c",dir[i+j]);
-		}
-		if ((dir[i+8]=='t') || (dir[i+8]=='T')) printf("text"); else printf("exec");
-		printf(" %5d %6d bytes\n", dir[i+9], 512*dir[i+10]);
-	}
-
-
-
-
-/*
 	//write the map and directory back to the floppy image
     fseek(floppy,512*256,SEEK_SET);
     for (i=0; i<512; i++) fputc(map[i],floppy);
 
     fseek(floppy,512*257,SEEK_SET);
     for (i=0; i<512; i++) fputc(dir[i],floppy);
-*/
+
 	fclose(floppy);
+    
 }
