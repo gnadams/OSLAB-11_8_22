@@ -212,7 +212,7 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
     }
     if(strcmp(dirSearch, fileName)==0) // BAD (if we find 2 file with same name)
     {
-            printf("duplicate or invalid file name \n"); // exit
+            printf("duplicate or invalid file name \n"); // put back inside the for loop ^
             return -1; // end program maybe use break?
     }
     else 
@@ -270,6 +270,74 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
         printf("No disks space :(( \n");
     }
 }
+
+
+// Delete function
+if(strcmp(argv[1],"D")==0)
+{
+
+
+int strLength = strlen(argv[2]); 
+    if (strLength <1)
+    {
+        printf("error: must give a file a name \n");
+        return -1;
+    }
+
+// TODO
+// 1 set first character of file name to 0
+
+// 2 go through map and set map[i] to 0 based on sector numbers ->(i+10)
+
+    char fileName[8]; // make 8 or 9? 
+    int sectorStart;
+    int sectorLength;
+    int found = 0;
+    for (i=0; i<512; i=i+16) 
+    {
+        if (dir[i]==0) break;
+        for (j=0; j<8; j++) {
+            if (dir[i+j]==0) fileName[j] ='\0'; else fileName[j]=dir[i+j];
+        }
+          if(strcmp(argv[2], fileName)==0) 
+            {
+                sectorStart = dir[i+9];
+                sectorLength = dir[i+10];
+                dir[i] = 0;
+                for (int j = 0; j < 512*sectorLength; ++j)
+                {
+                    map[sectorStart+j] = 0x00;
+
+                }
+                break;
+                found = 1;
+            }
+            else
+            {
+                found = 0;
+            }
+        
+        if (found == 0)
+        {
+            printf("error not ofund \n");
+        }
+
+    }
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
 
 
 
