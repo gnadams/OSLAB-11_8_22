@@ -89,28 +89,30 @@ int main(int argc, char* argv[])
     
     if(strcmp(argv[1], "L")  == 0)
     {
+        
         unsigned int bytesUsed = 0;
         printf("\nOption L: List Files \n \n");
         for (i =0; i <512; i=i+16)
         {
-            if (dir[i] == 0) break;
-            for (j = 0; j < 8; j++)
+            if(dir[i] != 0)
             {
-                if (dir[i+j] == 0)
+                for (j = 0; j < 8; j++)
                 {
-                    //printf("");
-                    dir[i+j] == '\0'; // empty
-                }
-                else
-                {
-                    printf("%c", dir[i+j]);
-                }
+                    if (dir[i+j] == 0)
+                    {
+                        //printf("");
+                        dir[i+j] == '\0'; // empty
+                    }
+                    else
+                    {
+                        printf("%c", dir[i+j]);
+                    }
 
+                }
+                // end of j for loop
+                bytesUsed = bytesUsed + dir[i+10]*512; // 
+                printf(".%c  %d bytes: ", dir[i+8], 512*dir[i+10]);printf("\n");
             }
-            // end of j for loop
-            bytesUsed = bytesUsed + dir[i+10]*512; // 
-            printf(".%c  %d bytes: ", dir[i+8], 512*dir[i+10]);printf("\n");
-            
         }
         printf("Bytes currently used %u ", bytesUsed);printf("\n");
         printf("Remaing Bytes left: %u ", 261632-bytesUsed);printf("\n");
@@ -140,9 +142,16 @@ if(strcmp(argv[1],"P")==0)
                 //PRINT FILE
                 char buffer[12288];
                 fseek(floppy,512*dir[i+9],SEEK_SET);
-                for(i=0; i<256; i++) {
+                for(i=0; i<12288; i++) {
                    buffer[i]=fgetc(floppy);
                 }
+                int k =0;
+                while(buffer[k])
+                {
+                    printf("%c", buffer[k]);
+                    k++;
+                }
+                /*
                 for(i=0; i<256; i=i+16) 
                 {
                     if(buffer[i] == 0) break;
@@ -158,7 +167,7 @@ if(strcmp(argv[1],"P")==0)
                     
                 }
 
-
+                    */
             }
 
             }
@@ -275,8 +284,6 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
 // Delete function
 if(strcmp(argv[1],"D")==0)
 {
-
-
 int strLength = strlen(argv[2]); 
     if (strLength <1)
     {
@@ -286,7 +293,6 @@ int strLength = strlen(argv[2]);
 
 // TODO
 // 1 set first character of file name to 0
-
 // 2 go through map and set map[i] to 0 based on sector numbers ->(i+10)
 
     char fileName[8]; // make 8 or 9? 
@@ -295,36 +301,36 @@ int strLength = strlen(argv[2]);
     int found = 0;
     for (i=0; i<512; i=i+16) 
     {
-        if (dir[i]==0) break;
-        for (j=0; j<8; j++) {
+       // if (dir[i]==0) break;
+        for (j=0; j<8; j++) 
+        {
             if (dir[i+j]==0) fileName[j] ='\0'; else fileName[j]=dir[i+j];
         }
           if(strcmp(argv[2], fileName)==0) 
             {
                 sectorStart = dir[i+9];
                 sectorLength = dir[i+10];
-                dir[i] = 0;
-                for (int j = 0; j < 512*sectorLength; ++j)
+                
+                for (int j = 0; j < sectorLength; ++j)
                 {
                     map[sectorStart+j] = 0x00;
-
+                    dir[i] = 0;
+                    found = 1;
+                    printf("we should be breaking out of the function now \n");
                 }
                 break;
-                found = 1;
             }
             else
             {
                 found = 0;
             }
-        
-        if (found == 0)
-        {
-            printf("error not ofund \n");
-        }
 
     }
-
-
+    printf("file deleted \n");
+    if (found == 0)
+    {
+        printf("error: file not found \n");
+    }
 
 
 
