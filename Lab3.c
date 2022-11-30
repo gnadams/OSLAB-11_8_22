@@ -100,7 +100,6 @@ int main(int argc, char* argv[])
                 {
                     if (dir[i+j] == 0)
                     {
-                        //printf("");
                         dir[i+j] == '\0'; // empty
                     }
                     else
@@ -109,8 +108,9 @@ int main(int argc, char* argv[])
                     }
 
                 }
-                // end of j for loop
-                bytesUsed = bytesUsed + dir[i+10]*512; // 
+                
+                bytesUsed = bytesUsed + dir[i+10]*512; 
+                
                 printf(".%c  %d bytes: ", dir[i+8], 512*dir[i+10]);printf("\n");
             }
         }
@@ -120,76 +120,71 @@ int main(int argc, char* argv[])
 
 
 // P function
-if(strcmp(argv[1],"P")==0)
+else if(strcmp(argv[1],"P")==0)
 {
-    char fileName[8]; // make 8 or 9? 
+    int bool = 0;
+    char fileName[8];
       for (i=0; i<512; i=i+16) {
-        if (dir[i]==0) break;
-        for (j=0; j<8; j++) {
+        if (dir[i]==0) break; // may have to take this line out 
+        for (j=0; j<8; j++) 
+        {
             if (dir[i+j]==0) fileName[j] ='\0'; else fileName[j]=dir[i+j];
         }
-          if(strcmp(argv[2], fileName)==0) {
+          if(strcmp(argv[2], fileName)==0) 
+            {
                 if(dir[i+8] != 't')
-            {
-                if(dir[i+8] !='x')
                 {
-                 printf("File not found");
-                }
-                else { printf("File is not printable");}
-            }
-            else
-            {
-                //PRINT FILE
-                char buffer[12288];
-                fseek(floppy,512*dir[i+9],SEEK_SET);
-                for(i=0; i<12288; i++) {
-                   buffer[i]=fgetc(floppy);
-                }
-                int k =0;
-                while(buffer[k])
-                {
-                    printf("%c", buffer[k]);
-                    k++;
-                }
-                /*
-                for(i=0; i<256; i=i+16) 
-                {
-                    if(buffer[i] == 0) break;
-                    for (j=0; j < 16; j++)
-                    if (buffer[i+j] == 0)
+                    if(dir[i+8] !='x')
                     {
-                        buffer[i+j] = "\0";
+                    printf("File not found");
+                    return -1;
                     }
-                    else
+                    else 
                     {
-                        printf("%c", buffer[i+j]);
+                        printf("This file cannot be printed");
+                        return -1;
                     }
-                    
                 }
-
-                    */
-            }
+                else
+                {
+                    // printing part
+                    char buffer[12288]; // max size for text file
+                    fseek(floppy,512*dir[i+9],SEEK_SET); // i+9 is where it will start
+                    for(i=0; i<12288; i++) {
+                    buffer[i]=fgetc(floppy); // fill buffer up
+                    }
+                    int k =0;
+                    while(buffer[k]) 
+                    {
+                        printf("%c", buffer[k]);
+                        k++;
+                    }
+                    bool = 1;
+                
+                }
 
             }
             
     }
-    printf("\n end of P function \n");
-
-
+    if (bool == 0)
+    {
+        printf("file does not exist. \n");
+    }
 }
 
 /// M function
 
 
-if(strcmp(argv[1],"M")==0) // argv[2] is the file name
+else if(strcmp(argv[1],"M")==0) // argv[2] is the file name
 {
     printf("entered the M function \n");
-    char contents[512]; // max size is 1 sector 
-    int startPoint; // (i+9) points to where the sector will begin at.
-    char fileName[9];
-    char dirSearch[9]; // char temp[9];
-    dirSearch[8] = '\0';
     int boolFlag = 0;
+    char contents[512]; // max size of 1 sector
+    int startPoint; // will point to the start of the file
+    char fileName[9]; // use this variable to store the file name taken in by user
+    char dirSearch[9]; // use this variable to search through directory to compare with fileName above^
+    dirSearch[8] = '\0'; // probably don't need this line
+    
    
     for (i = 0; i < 8;++i)
     {
@@ -231,7 +226,7 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
         {
             if(dir[i]==0) // look for free space in directory
                 {
-                    printf("we have found a free space in the directory! \n");
+                    //printf("we have found a free space in the directory! \n");
                     for(j=0; j<8; j++) 
                     {
                         dir[i+j] = fileName[j];
@@ -241,8 +236,8 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
                     {
                         if(map[j]==0)
                         {
-                            printf("free space on map has been found ! \n");
-                            // should set map location to 16 * i * j
+                            //printf("free space on map has been found ! \n");
+                            
                             startPoint = j;
                             map[j] = 255; // FF
                             boolFlag = 1;  //trigger bool 
@@ -282,7 +277,7 @@ if(strcmp(argv[1],"M")==0) // argv[2] is the file name
 
 
 // Delete function
-if(strcmp(argv[1],"D")==0)
+else if(strcmp(argv[1],"D")==0)
 {
 int strLength = strlen(argv[2]); 
     if (strLength <1)
@@ -291,7 +286,7 @@ int strLength = strlen(argv[2]);
         return -1;
     }
 
-// TODO
+
 // 1 set first character of file name to 0
 // 2 go through map and set map[i] to 0 based on sector numbers ->(i+10)
 
@@ -316,7 +311,7 @@ int strLength = strlen(argv[2]);
                     map[sectorStart+j] = 0x00;
                     dir[i] = 0;
                     found = 1;
-                    printf("we should be breaking out of the function now \n");
+                    //printf("we should be breaking out of the function now \n");
                 }
                 break;
             }
@@ -326,26 +321,20 @@ int strLength = strlen(argv[2]);
             }
 
     }
-    printf("file deleted \n");
-    if (found == 0)
+    if (found ==1)
     {
-        printf("error: file not found \n");
+    printf("file deleted \n");
     }
-
-
-
-
-
+    else
+    {
+    printf("error: file not found \n");
+    }
 }
-
-
-
-
-
-
-
-
-
+else // IF someone used a command other than D, L, M, or P
+{
+    printf("Error: you did not enter a valid command \n");
+    printf("valid arguments are: D filename , L , M filename, and P filename \n");
+}
 
 
 
