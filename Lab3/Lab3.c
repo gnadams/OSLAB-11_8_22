@@ -84,6 +84,11 @@ int main(int argc, char* argv[])
 		if ((dir[i+8]=='t') || (dir[i+8]=='T')) printf("text"); else printf("exec");
 		printf(" %5d %6d bytes\n", dir[i+9], 512*dir[i+10]);
 	}
+	if (argv[1] == '\0')
+	{
+		printf("NULL argument, terminating program \n");
+		return -1;
+	}
 
 // L function
     
@@ -136,12 +141,12 @@ else if(strcmp(argv[1],"P")==0)
                 {
                     if(dir[i+8] !='x')
                     {
-                    printf("File not found");
+                    printf("File not found \n");
                     return -1;
                     }
                     else 
                     {
-                        printf("This file cannot be printed");
+                        printf("This file cannot be printed \n");
                         return -1;
                     }
                 }
